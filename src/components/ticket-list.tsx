@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { TicketStatusBadge, type TicketStatus } from "./ticket-status-badge";
 import { formatDistanceToNow } from "date-fns";
 import { Eye, User, MessageSquare, CheckCircle, Edit, Save, X } from "lucide-react";
@@ -12,11 +13,14 @@ export interface Ticket {
   title: string;
   customerName: string;
   customerEmail: string;
+  customerId: string;
+  customerQuery: string;
   status: TicketStatus;
   priority: "low" | "medium" | "high";
   createdAt: Date;
   responseText: string;
   agentName: string;
+  isEdited: boolean;
 }
 
 interface TicketListProps {
@@ -79,11 +83,16 @@ export function TicketList({ tickets, onViewTicket, onApprove, onUpdateResponse 
       {tickets.map((ticket) => (
         <Card key={ticket.id} className="transition-all hover:shadow-md">
           <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <h3 className="font-semibold text-lg">{ticket.title}</h3>
-                <TicketStatusBadge status={ticket.status} />
-              </div>
+             <div className="flex items-center justify-between">
+               <div className="flex items-center gap-3">
+                 <h3 className="font-semibold text-lg">{ticket.title}</h3>
+                 <TicketStatusBadge status={ticket.status} />
+                 {ticket.isEdited && (
+                   <Badge variant="outline" className="bg-warning/10 text-warning border-warning">
+                     Edited
+                   </Badge>
+                 )}
+               </div>
               <Button
                 variant="outline"
                 size="sm"
@@ -96,26 +105,39 @@ export function TicketList({ tickets, onViewTicket, onApprove, onUpdateResponse 
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Student Info */}
-            <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1">
-                  <User className="w-4 h-4 text-muted-foreground" />
-                  <span className="font-medium">{ticket.customerName}</span>
+            {/* Customer Info */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-1">
+                    <User className="w-4 h-4 text-muted-foreground" />
+                    <span className="font-medium">{ticket.customerName}</span>
+                  </div>
+                  <div className="text-muted-foreground">
+                    {ticket.customerEmail}
+                  </div>
+                  <div className="text-muted-foreground font-mono text-xs bg-muted px-2 py-1 rounded">
+                    ID: {ticket.customerId}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <MessageSquare className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-muted-foreground">Agent: {ticket.agentName}</span>
+                  </div>
                 </div>
-                <div className="text-muted-foreground">
-                  {ticket.customerEmail}
-                </div>
-                <div className="flex items-center gap-1">
-                  <MessageSquare className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Agent: {ticket.agentName}</span>
+                <div className="flex items-center gap-4">
+                  <span className={`font-medium capitalize ${getPriorityColor(ticket.priority)}`}>
+                    {ticket.priority} Priority
+                  </span>
+                  <span className="text-muted-foreground">{formatDistanceToNow(ticket.createdAt, { addSuffix: true })}</span>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
-                <span className={`font-medium capitalize ${getPriorityColor(ticket.priority)}`}>
-                  {ticket.priority} Priority
-                </span>
-                <span className="text-muted-foreground">{formatDistanceToNow(ticket.createdAt, { addSuffix: true })}</span>
+            </div>
+
+            {/* Customer Query */}
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-muted-foreground">Customer Query:</p>
+              <div className="bg-blue-50 border-l-4 border-l-primary p-3 rounded-md">
+                <p className="text-sm">{ticket.customerQuery}</p>
               </div>
             </div>
 

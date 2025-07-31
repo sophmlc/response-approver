@@ -14,44 +14,56 @@ const sampleTickets: Ticket[] = [
     title: "Account Login Issues",
     customerName: "Sarah Johnson",
     customerEmail: "sarah.johnson@email.com",
+    customerId: "CUST-2024-001",
+    customerQuery: "I've been trying to log into my account for the past hour but keep getting an 'invalid credentials' error. I've tried resetting my password twice but still can't access my account. This is urgent as I need to submit my assignment today.",
     status: "pending",
     priority: "high",
     createdAt: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
     responseText: "Hi Sarah, I apologize for the login issues you're experiencing. I've reset your password and sent the new credentials to your email. Please try logging in again and let me know if you continue to have problems. Our technical team has also been notified to prevent this issue in the future.",
-    agentName: "Mike Chen"
+    agentName: "Mike Chen",
+    isEdited: false
   },
   {
     id: "2",
     title: "Billing Discrepancy",
     customerName: "Robert Davis",
     customerEmail: "robert.davis@company.com",
+    customerId: "CUST-2024-002",
+    customerQuery: "I noticed an extra charge of $45.99 on my monthly bill that I don't recognize. I've reviewed my usage and I don't think this charge is correct. Can you please look into this and explain what this charge is for?",
     status: "pending",
     priority: "medium",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
     responseText: "Hello Robert, thank you for bringing this billing discrepancy to our attention. I've reviewed your account and found that there was indeed an error in our billing system. I've processed a full refund of $45.99 which should appear in your account within 3-5 business days. I've also applied a 10% discount to your next bill as an apology for the inconvenience.",
-    agentName: "Lisa Rodriguez"
+    agentName: "Lisa Rodriguez",
+    isEdited: false
   },
   {
     id: "3",
     title: "Feature Request - Dark Mode",
     customerName: "Alex Thompson",
     customerEmail: "alex.t@startup.io",
+    customerId: "CUST-2024-003",
+    customerQuery: "Hi, I love using your platform but I work late hours and would really appreciate a dark mode option. The current bright interface strains my eyes during nighttime coding sessions. Is this something you're considering adding?",
     status: "approved",
     priority: "low",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
     responseText: "Hi Alex, thank you for your feature request regarding dark mode! I'm excited to let you know that our development team has already been working on this feature and it's scheduled to be released in our next major update in Q2. I'll make sure to add you to our beta testing list so you can try it out early. We really appreciate customers like you who help us improve our product!",
-    agentName: "David Park"
+    agentName: "David Park",
+    isEdited: false
   },
   {
     id: "4",
     title: "Service Cancellation Request",
     customerName: "Maria Garcia",
     customerEmail: "maria.garcia@email.com",
+    customerId: "CUST-2024-004",
+    customerQuery: "I'm not satisfied with the service quality and would like to cancel my subscription. I've been experiencing frequent outages and slow response times. Please process my cancellation request as soon as possible.",
     status: "rejected",
     priority: "medium",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 4), // 4 hours ago
     responseText: "Hi Maria, I understand you'd like to cancel your service. However, I see you're currently in a contract period that doesn't end until next month. Canceling now would incur a $150 early termination fee. Instead, I'd like to offer you a 50% discount for the next 3 months to see if we can resolve any issues you're having with our service.",
-    agentName: "Emma Wilson"
+    agentName: "Emma Wilson",
+    isEdited: false
   }
 ];
 
@@ -80,7 +92,7 @@ const Index = () => {
   const handleUpdateResponse = (ticketId: string, newResponse: string) => {
     setTickets(prev => prev.map(ticket => 
       ticket.id === ticketId 
-        ? { ...ticket, responseText: newResponse }
+        ? { ...ticket, responseText: newResponse, isEdited: true }
         : ticket
     ));
   };
