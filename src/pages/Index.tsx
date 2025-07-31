@@ -77,6 +77,14 @@ const Index = () => {
     ));
   };
 
+  const handleUpdateResponse = (ticketId: string, newResponse: string) => {
+    setTickets(prev => prev.map(ticket => 
+      ticket.id === ticketId 
+        ? { ...ticket, responseText: newResponse }
+        : ticket
+    ));
+  };
+
   const handleReject = (ticketId: string, comment: string) => {
     setTickets(prev => prev.map(ticket => 
       ticket.id === ticketId 
@@ -143,6 +151,8 @@ const Index = () => {
                   <TicketList
                     tickets={filteredTickets}
                     onViewTicket={handleViewTicket}
+                    onApprove={handleApprove}
+                    onUpdateResponse={handleUpdateResponse}
                   />
                 ) : (
                   <div className="text-center py-12 text-muted-foreground">

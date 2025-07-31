@@ -1,8 +1,11 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { TicketStatusBadge, type TicketStatus } from "./ticket-status-badge";
 import { formatDistanceToNow } from "date-fns";
-import { Eye, User, MessageSquare } from "lucide-react";
+import { Eye, User, MessageSquare, CheckCircle, Edit, Save, X } from "lucide-react";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 export interface Ticket {
   id: string;
@@ -19,9 +22,15 @@ export interface Ticket {
 interface TicketListProps {
   tickets: Ticket[];
   onViewTicket: (ticketId: string) => void;
+  onApprove: (ticketId: string) => void;
+  onUpdateResponse: (ticketId: string, newResponse: string) => void;
 }
 
-export function TicketList({ tickets, onViewTicket }: TicketListProps) {
+export function TicketList({ tickets, onViewTicket, onApprove, onUpdateResponse }: TicketListProps) {
+  const [editingTicket, setEditingTicket] = useState<string | null>(null);
+  const [editedResponse, setEditedResponse] = useState("");
+  const { toast } = useToast();
+
   const getPriorityColor = (priority: Ticket["priority"]) => {
     switch (priority) {
       case "high":
@@ -33,6 +42,36 @@ export function TicketList({ tickets, onViewTicket }: TicketListProps) {
       default:
         return "text-muted-foreground";
     }
+  };
+
+  const handleEdit = (ticket: Ticket) => {
+    setEditingTicket(ticket.id);
+    setEditedResponse(ticket.responseText);
+  };
+
+  const handleSave = (ticketId: string) => {
+    if (editedResponse.trim()) {
+      onUpdateResponse(ticketId, editedResponse);
+      setEditingTicket(null);
+      setEditedResponse("");
+      toast({
+        title: "Response Updated",
+        description: "The proposed response has been updated successfully.",
+      });
+    }
+  };
+
+  const handleCancel = () => {
+    setEditingTicket(null);
+    setEditedResponse("");
+  };
+
+  const handleApprove = (ticketId: string) => {
+    onApprove(ticketId);
+    toast({
+      title: "Response Approved",
+      description: "The response has been approved and will be sent to the student.",
+    });
   };
 
   return (
@@ -56,29 +95,90 @@ export function TicketList({ tickets, onViewTicket }: TicketListProps) {
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <CardContent className="space-y-4">
+            {/* Student Info */}
+            <div className="flex items-center justify-between text-sm">
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1">
-                  <User className="w-4 h-4" />
-                  <span>{ticket.customerName}</span>
+                  <User className="w-4 h-4 text-muted-foreground" />
+                  <span className="font-medium">{ticket.customerName}</span>
+                </div>
+                <div className="text-muted-foreground">
+                  {ticket.customerEmail}
                 </div>
                 <div className="flex items-center gap-1">
-                  <MessageSquare className="w-4 h-4" />
-                  <span>Agent: {ticket.agentName}</span>
+                  <MessageSquare className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">Agent: {ticket.agentName}</span>
                 </div>
               </div>
               <div className="flex items-center gap-4">
                 <span className={`font-medium capitalize ${getPriorityColor(ticket.priority)}`}>
                   {ticket.priority} Priority
                 </span>
-                <span>{formatDistanceToNow(ticket.createdAt, { addSuffix: true })}</span>
+                <span className="text-muted-foreground">{formatDistanceToNow(ticket.createdAt, { addSuffix: true })}</span>
               </div>
             </div>
-            <div className="bg-muted/50 p-3 rounded-md">
-              <p className="text-sm text-muted-foreground mb-1">Proposed Response:</p>
-              <p className="text-sm line-clamp-2">{ticket.responseText}</p>
+
+            {/* Proposed Response */}
+            <div className="space-y-3">
+              <p className="text-sm font-medium text-muted-foreground">Proposed Response:</p>
+              {editingTicket === ticket.id ? (
+                <div className="space-y-3">
+                  <Textarea
+                    value={editedResponse}
+                    onChange={(e) => setEditedResponse(e.target.value)}
+                    className="min-h-[120px]"
+                    placeholder="Edit the proposed response..."
+                  />
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() => handleSave(ticket.id)}
+                      className="gap-2"
+                    >
+                      <Save className="w-4 h-4" />
+                      Save Changes
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleCancel}
+                      className="gap-2"
+                    >
+                      <X className="w-4 h-4" />
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-muted/50 p-4 rounded-md">
+                  <p className="text-sm whitespace-pre-wrap">{ticket.responseText}</p>
+                </div>
+              )}
             </div>
+
+            {/* Action Buttons */}
+            {ticket.status === "pending" && editingTicket !== ticket.id && (
+              <div className="flex gap-3 pt-2">
+                <Button
+                  onClick={() => handleApprove(ticket.id)}
+                  className="gap-2"
+                  size="sm"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                  Approve Response
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => handleEdit(ticket)}
+                  className="gap-2"
+                  size="sm"
+                >
+                  <Edit className="w-4 h-4" />
+                  Edit Response
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       ))}
