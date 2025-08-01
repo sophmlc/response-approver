@@ -6,7 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { HeadphonesIcon, Filter } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { HeadphonesIcon, Filter, Webhook, Settings } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 // Sample data
 const sampleTickets: Ticket[] = [
@@ -83,6 +86,9 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [queryTypeFilter, setQueryTypeFilter] = useState<string>("all");
   const [querySubtypeFilter, setQuerySubtypeFilter] = useState<string>("all");
+  const [webhookUrl, setWebhookUrl] = useState("");
+  const [showWebhookSettings, setShowWebhookSettings] = useState(false);
+  const { toast } = useToast();
 
   const handleViewTicket = (ticketId: string) => {
     const ticket = tickets.find(t => t.id === ticketId);
@@ -92,20 +98,82 @@ const Index = () => {
     }
   };
 
-  const handleApprove = (ticketId: string, comment?: string) => {
-    setTickets(prev => prev.map(ticket => 
+  const sendToN8n = async (ticket: Ticket, action: "approved" | "edited", comment?: string) => {
+    if (!webhookUrl) return;
+
+    try {
+      const payload = {
+        action,
+        ticket: {
+          id: ticket.id,
+          title: ticket.title,
+          customerName: ticket.customerName,
+          customerEmail: ticket.customerEmail,
+          customerId: ticket.customerId,
+          customerQuery: ticket.customerQuery,
+          queryType: ticket.queryType,
+          querySubtype: ticket.querySubtype,
+          status: ticket.status,
+          priority: ticket.priority,
+          responseText: ticket.responseText,
+          agentName: ticket.agentName,
+          isEdited: ticket.isEdited,
+          createdAt: ticket.createdAt.toISOString(),
+        },
+        comment,
+        timestamp: new Date().toISOString(),
+        source: "support-approval-center"
+      };
+
+      await fetch(webhookUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        mode: "no-cors",
+        body: JSON.stringify(payload),
+      });
+
+      toast({
+        title: "n8n Webhook Triggered",
+        description: `Ticket data sent to n8n workflow for ${action} action.`,
+      });
+    } catch (error) {
+      console.error("Error sending to n8n:", error);
+      toast({
+        title: "Webhook Error",
+        description: "Failed to send data to n8n webhook.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleApprove = async (ticketId: string, comment?: string) => {
+    const updatedTickets = tickets.map(ticket => 
       ticket.id === ticketId 
         ? { ...ticket, status: "approved" as const }
         : ticket
-    ));
+    );
+    setTickets(updatedTickets);
+
+    const approvedTicket = updatedTickets.find(t => t.id === ticketId);
+    if (approvedTicket && webhookUrl) {
+      await sendToN8n(approvedTicket, "approved", comment);
+    }
   };
 
-  const handleUpdateResponse = (ticketId: string, newResponse: string) => {
-    setTickets(prev => prev.map(ticket => 
+  const handleUpdateResponse = async (ticketId: string, newResponse: string) => {
+    const updatedTickets = tickets.map(ticket => 
       ticket.id === ticketId 
         ? { ...ticket, responseText: newResponse, isEdited: true }
         : ticket
-    ));
+    );
+    setTickets(updatedTickets);
+
+    const editedTicket = updatedTickets.find(t => t.id === ticketId);
+    if (editedTicket && webhookUrl) {
+      await sendToN8n(editedTicket, "edited");
+    }
   };
 
   const handleReject = (ticketId: string, comment: string) => {
@@ -162,6 +230,15 @@ const Index = () => {
               </div>
             </div>
             <div className="flex gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowWebhookSettings(!showWebhookSettings)}
+                className="gap-2"
+              >
+                <Settings className="w-4 h-4" />
+                n8n Settings
+              </Button>
               <Select value={queryTypeFilter} onValueChange={(value) => {
                 setQueryTypeFilter(value);
                 setQuerySubtypeFilter("all");
@@ -196,6 +273,39 @@ const Index = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-6 py-8 space-y-8">
+        {/* n8n Webhook Settings */}
+        {showWebhookSettings && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Webhook className="w-5 h-5" />
+                n8n Webhook Configuration
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="webhook-url">n8n Webhook URL</Label>
+                <Input
+                  id="webhook-url"
+                  type="url"
+                  placeholder="https://your-n8n-instance.com/webhook/your-webhook-id"
+                  value={webhookUrl}
+                  onChange={(e) => setWebhookUrl(e.target.value)}
+                />
+                <p className="text-sm text-muted-foreground">
+                  Enter your n8n webhook URL to automatically send ticket data when tickets are approved or edited.
+                </p>
+              </div>
+              <div className="bg-blue-50 p-4 rounded-md border-l-4 border-l-primary">
+                <h4 className="font-medium text-sm mb-2">Webhook Data Format:</h4>
+                <p className="text-xs text-muted-foreground">
+                  The webhook will receive JSON data containing: ticket details, action type (approved/edited), timestamp, and source information.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Stats */}
         <DashboardStats {...stats} />
 
