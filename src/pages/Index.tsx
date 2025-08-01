@@ -5,6 +5,7 @@ import { TicketDetailModal } from "@/components/ticket-detail-modal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { HeadphonesIcon, Filter } from "lucide-react";
 
 // Sample data
@@ -14,8 +15,10 @@ const sampleTickets: Ticket[] = [
     title: "Account Login Issues",
     customerName: "Sarah Johnson",
     customerEmail: "sarah.johnson@email.com",
-    customerId: "CUST-2024-001",
-    customerQuery: "I've been trying to log into my account for the past hour but keep getting an 'invalid credentials' error. I've tried resetting my password twice but still can't access my account. This is urgent as I need to submit my assignment today.",
+    customerId: "STU-001",
+    customerQuery: "Dear Support Team,\n\nI've been trying to log into my student portal for the past hour but keep getting an 'invalid credentials' error message. I've tried resetting my password twice using the 'Forgot Password' link, but I still can't access my account.\n\nThis is urgent as I need to submit my Psychology assignment that's due tonight at 11:59 PM. I've been working on it all week and really don't want to miss the deadline.\n\nPlease help me resolve this as soon as possible.\n\nBest regards,\nSarah Johnson\nStudent ID: STU-001",
+    queryType: "Technical Support",
+    querySubtype: "Login Issues",
     status: "pending",
     priority: "high",
     createdAt: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
@@ -28,40 +31,46 @@ const sampleTickets: Ticket[] = [
     title: "Billing Discrepancy",
     customerName: "Robert Davis",
     customerEmail: "robert.davis@company.com",
-    customerId: "CUST-2024-002",
-    customerQuery: "I noticed an extra charge of $45.99 on my monthly bill that I don't recognize. I've reviewed my usage and I don't think this charge is correct. Can you please look into this and explain what this charge is for?",
+    customerId: "STU-002",
+    customerQuery: "Hello Billing Department,\n\nI just received my monthly tuition statement and noticed an extra charge of $145.99 that I don't recognize. The line item shows 'LAB-FEE-SUPP' but I'm not enrolled in any lab courses this semester.\n\nI've reviewed my course schedule and I'm only taking:\n- English Literature (ENG-201)\n- History of Art (ART-150) \n- Business Communications (BUS-100)\n\nNone of these require lab fees. Could you please investigate this charge and let me know what it's for? If it's an error, I'd appreciate a refund.\n\nThank you,\nRobert Davis",
+    queryType: "Billing & Payments",
+    querySubtype: "Billing Inquiry",
     status: "pending",
     priority: "medium",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-    responseText: "Hello Robert, thank you for bringing this billing discrepancy to our attention. I've reviewed your account and found that there was indeed an error in our billing system. I've processed a full refund of $45.99 which should appear in your account within 3-5 business days. I've also applied a 10% discount to your next bill as an apology for the inconvenience.",
+    responseText: "Hello Robert, thank you for bringing this billing discrepancy to our attention. I've reviewed your account and found that there was indeed an error in our billing system. I've processed a full refund of $145.99 which should appear in your account within 3-5 business days. I've also applied a 10% discount to your next bill as an apology for the inconvenience.",
     agentName: "Lisa Rodriguez",
     isEdited: false
   },
   {
     id: "3",
-    title: "Feature Request - Dark Mode",
+    title: "Course Access Request",
     customerName: "Alex Thompson",
     customerEmail: "alex.t@startup.io",
-    customerId: "CUST-2024-003",
-    customerQuery: "Hi, I love using your platform but I work late hours and would really appreciate a dark mode option. The current bright interface strains my eyes during nighttime coding sessions. Is this something you're considering adding?",
+    customerId: "STU-003",
+    customerQuery: "Hi Academic Services,\n\nI'm writing to request access to the Advanced Web Development course (CS-450) for next semester. I understand that this course typically requires completion of Intermediate Programming (CS-350) as a prerequisite.\n\nWhile I haven't taken CS-350 at your institution, I have extensive professional experience in web development and have completed equivalent coursework through online certifications. I'm attaching my portfolio and certificates for your review.\n\nI'm particularly interested in this course because it covers React and Node.js, which are directly relevant to my current internship at a tech startup.\n\nWould it be possible to waive the prerequisite or take a placement exam?\n\nThank you for your consideration,\nAlex Thompson",
+    queryType: "Academic Support",
+    querySubtype: "Course Enrollment",
     status: "approved",
     priority: "low",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
-    responseText: "Hi Alex, thank you for your feature request regarding dark mode! I'm excited to let you know that our development team has already been working on this feature and it's scheduled to be released in our next major update in Q2. I'll make sure to add you to our beta testing list so you can try it out early. We really appreciate customers like you who help us improve our product!",
+    responseText: "Hi Alex, thank you for your course access request for Advanced Web Development! After reviewing your portfolio and professional experience, I'm pleased to inform you that we can waive the CS-350 prerequisite. Your practical experience clearly demonstrates the necessary skills. I've enrolled you in CS-450 for next semester and you should see it in your course schedule within 24 hours.",
     agentName: "David Park",
     isEdited: false
   },
   {
     id: "4",
-    title: "Service Cancellation Request",
+    title: "Graduation Requirements Query",
     customerName: "Maria Garcia",
     customerEmail: "maria.garcia@email.com",
-    customerId: "CUST-2024-004",
-    customerQuery: "I'm not satisfied with the service quality and would like to cancel my subscription. I've been experiencing frequent outages and slow response times. Please process my cancellation request as soon as possible.",
+    customerId: "STU-004",
+    customerQuery: "Dear Academic Advising,\n\nI'm planning to graduate at the end of this academic year and want to make sure I'm on track to meet all requirements for my Business Administration degree.\n\nAccording to my degree audit, I have completed 118 out of 120 required credits. The system shows I still need:\n- 1 upper-level elective (3 credits)\n- Capstone project (3 credits)\n\nHowever, I'm currently enrolled in Strategic Management (BUS-485) which should fulfill the capstone requirement, but it's not showing up in my audit yet.\n\nCould someone please review my transcript and confirm what I still need to complete? I want to make sure I can graduate on time in May.\n\nThank you,\nMaria Garcia\nExpected graduation: May 2024",
+    queryType: "Academic Support",
+    querySubtype: "Graduation Requirements",
     status: "rejected",
     priority: "medium",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 4), // 4 hours ago
-    responseText: "Hi Maria, I understand you'd like to cancel your service. However, I see you're currently in a contract period that doesn't end until next month. Canceling now would incur a $150 early termination fee. Instead, I'd like to offer you a 50% discount for the next 3 months to see if we can resolve any issues you're having with our service.",
+    responseText: "Hi Maria, I've reviewed your degree audit and academic transcript. Unfortunately, there's an issue with your graduation timeline. While BUS-485 does fulfill your capstone requirement, you're still missing a required International Business course (3 credits) that was added to the curriculum in 2022. This course wasn't reflected in your original degree plan but is now mandatory for all Business Administration degrees. I recommend meeting with an academic advisor to discuss your options, which may include summer coursework.",
     agentName: "Emma Wilson",
     isEdited: false
   }
@@ -72,6 +81,8 @@ const Index = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tickets, setTickets] = useState<Ticket[]>(sampleTickets);
   const [activeTab, setActiveTab] = useState("all");
+  const [queryTypeFilter, setQueryTypeFilter] = useState<string>("all");
+  const [querySubtypeFilter, setQuerySubtypeFilter] = useState<string>("all");
 
   const handleViewTicket = (ticketId: string) => {
     const ticket = tickets.find(t => t.id === ticketId);
@@ -105,9 +116,27 @@ const Index = () => {
     ));
   };
 
+  const queryTypes = ["all", ...Array.from(new Set(tickets.map(t => t.queryType)))];
+  const querySubtypes = queryTypeFilter === "all" 
+    ? ["all", ...Array.from(new Set(tickets.map(t => t.querySubtype)))]
+    : ["all", ...Array.from(new Set(tickets.filter(t => t.queryType === queryTypeFilter).map(t => t.querySubtype)))];
+
   const filteredTickets = tickets.filter(ticket => {
-    if (activeTab === "all") return true;
-    return ticket.status === activeTab;
+    let matches = true;
+    
+    if (activeTab !== "all") {
+      matches = matches && ticket.status === activeTab;
+    }
+    
+    if (queryTypeFilter !== "all") {
+      matches = matches && ticket.queryType === queryTypeFilter;
+    }
+    
+    if (querySubtypeFilter !== "all") {
+      matches = matches && ticket.querySubtype === querySubtypeFilter;
+    }
+    
+    return matches;
   });
 
   const stats = {
@@ -132,10 +161,35 @@ const Index = () => {
                 <p className="text-muted-foreground">Review and approve customer support responses</p>
               </div>
             </div>
-            <Button variant="outline" className="gap-2">
-              <Filter className="w-4 h-4" />
-              Filters
-            </Button>
+            <div className="flex gap-3">
+              <Select value={queryTypeFilter} onValueChange={(value) => {
+                setQueryTypeFilter(value);
+                setQuerySubtypeFilter("all");
+              }}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Filter by query type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {queryTypes.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type === "all" ? "All Query Types" : type}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={querySubtypeFilter} onValueChange={setQuerySubtypeFilter}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Filter by subtype" />
+                </SelectTrigger>
+                <SelectContent>
+                  {querySubtypes.map((subtype) => (
+                    <SelectItem key={subtype} value={subtype}>
+                      {subtype === "all" ? "All Subtypes" : subtype}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
       </header>
